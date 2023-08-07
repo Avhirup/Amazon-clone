@@ -107,3 +107,5 @@ addToCartBtn.forEach((button) => {
     console.log(cart);
   })
 })
+
+document.querySelector('.cart-quantity').textContent = cart.length;

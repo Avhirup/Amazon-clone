@@ -14,8 +14,8 @@ cart.forEach((cartItem) => {
     }
   });
 
-  cartHTML += `<div class="cart-item-container">
-  <div class="delivery-date">Delivery date: Wednesday, June 15</div>
+  cartHTML += `<div class="cart-item-container cart-item-${matchingProduct.id}">
+  <div class="delivery-date">Delivery date: <span class="change-date">Wednesday, June 15</span></div>
 
   <div class="cart-item-details-grid">
     <img
@@ -46,7 +46,7 @@ cart.forEach((cartItem) => {
         <input
           type="radio"
           class="delivery-option-input"
-          name="delivery-option-${matchingProduct.id}"
+          name="${matchingProduct.id}"
         />
         <div>
           <div class="delivery-option-date">Tuesday, June 21</div>
@@ -58,22 +58,22 @@ cart.forEach((cartItem) => {
           type="radio"
           checked
           class="delivery-option-input"
-          name="delivery-option-${matchingProduct.id}"
+          name="${matchingProduct.id}"
         />
         <div>
           <div class="delivery-option-date">Wednesday, June 15</div>
-          <div class="delivery-option-price">$4.99 - Shipping</div>
+          <div class="delivery-option-price">FREE Shipping</div>
         </div>
       </div>
       <div class="delivery-option">
         <input
           type="radio"
           class="delivery-option-input"
-          name="delivery-option-${matchingProduct.id}"
+          name="${matchingProduct.id}"
         />
         <div>
           <div class="delivery-option-date">Monday, June 13</div>
-          <div class="delivery-option-price">$9.99 - Shipping</div>
+          <div class="delivery-option-price">FREE Shipping</div>
         </div>
       </div>
     </div>
@@ -90,6 +90,48 @@ document.querySelectorAll('.del-qty-link').forEach((link) => {
   link.addEventListener('click', () => {
     const productId = link.dataset.productId;
     removeFromCart(productId);
+    document.querySelector(`.cart-item-${productId}`).remove();
+    checkOrderSummary();
   })
 });
 
+//! CORRECTING ORDER SUMMARY 
+function checkOrderSummary() {
+  document.querySelector('.no-of-order').textContent = cart.length;
+  const bill = totalItemsCost();
+  document.querySelectorAll('.total-bill').forEach((elem) => elem.textContent = bill)
+  const tax = estimatedTax();
+  document.querySelector('.total-tax').textContent = tax;
+  const orderTotal = (parseFloat(bill) + parseFloat(tax)).toFixed(2);
+  document.querySelector('.order-total').textContent = orderTotal;
+}
+
+checkOrderSummary();
+
+function totalItemsCost() {
+  let bill = 0;
+  cart.forEach((cartItem) => {
+    const productId = cartItem.productId;
+    const productQty = cartItem.quantity;
+    products.forEach((product) => {
+      if (product.id === productId) {
+        bill += (productQty * product.priceCents);
+      }
+    })
+  })
+  return (bill / 100).toFixed(2);
+}
+
+function estimatedTax() {
+  const totalItems = totalItemsCost();
+  let tax = (totalItems * (10 / 100)).toFixed(2);
+  return tax;
+}
+
+//!UPDATEING THE DELIVERY DATE
+document.querySelectorAll('.delivery-option-input').forEach((input) => {
+  input.addEventListener('click', () => {
+    const nextDiv = input.nextElementSibling;
+    document.querySelector(`.cart-item-${input.name}`).querySelector('.change-date').textContent = nextDiv.querySelector('.delivery-option-date').textContent;
+  })
+})
