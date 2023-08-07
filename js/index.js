@@ -1,4 +1,4 @@
-import { cart } from '../data/cart.js'
+import { cart, addToCart } from '../data/cart.js'
 import { products } from '../data/products.js'
 
 let productsHTML = '';
@@ -56,6 +56,40 @@ products.forEach(product => {
 document.querySelector('.js-products').innerHTML = productsHTML;
 
 
+function updateCartQuantity() {
+
+  //? UPDATING THE CART VALUE
+  document.querySelector('.cart-quantity').textContent = cart.length;
+
+}
+
+function showCartNotification(selectedProduct) {
+  let t;
+  const isVisible = selectedProduct.querySelector(".added-to-cart").classList.contains("visible");
+  if (isVisible) {
+    console.log('check passed');
+    remove();
+  }
+  else {
+    showNotification();
+  }
+
+  function remove() {
+    clearTimeout(t);
+    selectedProduct.querySelector(".added-to-cart").classList.remove("visible");
+    showNotification();
+  }
+
+  function showNotification() {
+    selectedProduct.querySelector(".added-to-cart").classList.add('visible');
+    t = setTimeout(() => {
+      selectedProduct.querySelector(".added-to-cart").classList.remove('visible');
+    }, 3000);
+  }
+}
+
+
+//! ADD TO CART BUTTON FUNCTIONALITY
 const addToCartBtn = document.querySelectorAll('.AddToCartBtn');
 
 addToCartBtn.forEach((button) => {
@@ -63,52 +97,13 @@ addToCartBtn.forEach((button) => {
     const productId = button.dataset.productId;
     const qty = parseInt(button.parentElement.querySelector('select').value);
 
-    // let cartQuantity = parseInt(document.querySelector('.cart-quantity').textContent);
+    addToCart(productId, qty);
+    updateCartQuantity();
 
-    //! Updating the cart
-    let matchingItem;
-    cart.forEach((item) => {
-      if (item.productId === productId)
-        matchingItem = item;
-    })
-
-    if (matchingItem) {
-      matchingItem.quantity += qty;
-    }
-    else {
-      cart.push({
-        productId: productId,
-        quantity: qty
-      })
-    }
-
-    //! UPDATING THE CART VALUE
-    document.querySelector('.cart-quantity').textContent = cart.length;
+    //? SHOW "ADDED TO CART" NOTIFICATION
+    const selectedProduct = e.target.parentElement;
+    showCartNotification(selectedProduct);
 
     console.log(cart);
-    //! ADDED TO CART NOTIFICATION
-    let t;
-    const btn = e.target.parentElement;
-    const isVisible = btn.querySelector(".added-to-cart").classList.contains("visible");
-    if (isVisible) {
-      console.log('check passed');
-      remove();
-    }
-    else {
-      showNotification();
-    }
-
-    function remove() {
-      clearTimeout(t);
-      btn.querySelector(".added-to-cart").classList.remove("visible");
-      showNotification();
-    }
-
-    function showNotification() {
-      btn.querySelector(".added-to-cart").classList.add('visible');
-      t = setTimeout(() => {
-        btn.querySelector(".added-to-cart").classList.remove('visible');
-      }, 3000);
-    }
   })
 })
